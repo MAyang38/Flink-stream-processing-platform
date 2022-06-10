@@ -7,7 +7,7 @@ import org.apache.flink.api.java.tuple.Tuple3;
 
 public  class MyPeriodicGenerator implements WatermarkGenerator<Tuple3<String, Long, Integer>> {
 
-    private final long maxOutOfOrderness = 5 * 1000; // 5second
+    private final long maxOutOfOrderness = 10 * 1000; // 5second
     private long currentMaxTimestamp;                 // 已抽取的Timestamp最大值
 
     @Override
@@ -19,6 +19,7 @@ public  class MyPeriodicGenerator implements WatermarkGenerator<Tuple3<String, L
     @Override
     public void onPeriodicEmit(WatermarkOutput output) {
         // Watermark比currentMaxTimestamp最大值慢5秒
+//        System.out.println("已经发射的watermark" + (currentMaxTimestamp - maxOutOfOrderness));
         output.emitWatermark(new Watermark(currentMaxTimestamp - maxOutOfOrderness));
     }
 

@@ -9,8 +9,8 @@ public class Car {
     public String terminal_phone;      //终端手机号   唯一确定
     public int warning_flag_field;     //报警标志
     public int status_field;            //车辆状态
-    public String latitude;             //纬度，精确到百万分之一度，小数点后六位
-    public String longitude;            //经度，精确到百万分之一度，小数点后六位
+    public Double latitude;             //纬度，精确到百万分之一度，小数点后六位
+    public Double longitude;            //经度，精确到百万分之一度，小数点后六位
     public String elevation;            //海拔、高度，单位m
     public int speed;                   //速度，单位0.1km/h
     public int direction;               //方向,0-359,正北为 0,顺时针
@@ -22,7 +22,7 @@ public class Car {
     public String last_update_user;     //最后更新人
     public int is_delete;               //是否删除
 
-    public Car(int id, String terminal_phone, int warning_flag_field, int status_field, String latitude, String longitude, String elevation, int speed, int direction, Long time, int is_have_additional_message, Timestamp create_time, String create_user, Timestamp last_update_time, String last_update_user, int is_delete) {
+    public Car(int id, String terminal_phone, int warning_flag_field, int status_field, Double latitude, Double longitude, String elevation, int speed, int direction, Long time, int is_have_additional_message, Timestamp create_time, String create_user, Timestamp last_update_time, String last_update_user, int is_delete) {
         this.id = id;
         this.terminal_phone = terminal_phone;
         this.warning_flag_field = warning_flag_field;
@@ -95,19 +95,19 @@ public class Car {
         this.status_field = status_field;
     }
 
-    public String getLatitude() {
+    public Double getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(String latitude) {
+    public void setLatitude(String Double) {
         this.latitude = latitude;
     }
 
-    public String getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(String longitude) {
+    public void setLongitude(Double longitude) {
         this.longitude = longitude;
     }
 

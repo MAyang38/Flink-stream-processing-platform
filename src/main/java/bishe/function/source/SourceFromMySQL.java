@@ -23,10 +23,14 @@ public class SourceFromMySQL extends RichSourceFunction<Car> {
      */
     @Override
     public void open(Configuration parameters) throws Exception {
-        super.open(parameters);
-        connection = getConnection();
+        System.out.println("开始准备source");
+//        super.open(parameters);
+//        connection = getConnection();
+        connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/test", "root", "123456");
+
         String sql = "select * from location_info;"; // 编写具体逻辑代码
         ps = this.connection.prepareStatement(sql);
+        System.out.println("source初始化成功");
     }
 
     /**
@@ -52,25 +56,26 @@ public class SourceFromMySQL extends RichSourceFunction<Car> {
         long timeDiff = 0;
         long lastEventTs = 0;
         while (isRunning && resultSet.next()) {
-//            System.out.println(resultSet.getInt("id") + "  id号     创建时间 " +
-//            resultSet.getTimestamp("create_time"));
-            //时间的由String数字转换成Date日期
-//            String Time= resultSet.getString("time");
-//            Long time = Long.valueOf(Time) ;
-//            String formatTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(time));
-//                        System.out.println("数字时间是" + time + "Format To String(Date):"+formatTime);
+
+          //将String的时间转换为Long时间戳    原时间格式yyMMddHHmmss
             String Time= resultSet.getString("time");
             DateFormat df = new SimpleDateFormat("yyMMddHHmmss");
             Date d = df.parse(Time);
             long dateTime = d.getTime();
 //            System.out.println(dateTime);
+            //将经纬度由String转化为Double
+            String La = resultSet.getString("latitude");
+            double la = Double.parseDouble(La);
+            String Lo = resultSet.getString("longitude");
+            double lo = Double.parseDouble(Lo);
+
             Car car = new Car(
                     resultSet.getInt("id"),
                     resultSet.getString("terminal_phone"),
                     resultSet.getInt("warning_flag_field"),
                     resultSet.getInt("status_field"),
-                    resultSet.getString("latitude"),
-                    resultSet.getString("longitude"),
+                    la,
+                    lo,
                     resultSet.getString("elevation"),
                     resultSet.getInt("speed"),
                     resultSet.getInt("direction"),
@@ -87,17 +92,24 @@ public class SourceFromMySQL extends RichSourceFunction<Car> {
                 // 从第一行数据提取时间戳
                 lastEventTs = eventTs;
                 isFirstLine = false;
+//                ctx.collect(car);
+//                System.out.println("first");
             }
             else {
                 ///数据 按时间缓冲 进入
-//                System.out.println("此数据时间为"+ eventTs + " 前一刻时间为" + lastEventTs);
+//                System.out.println("此数据时间为"+ eventTs + " 前一刻时间为" + lastEventTs + "时间差为");
                 timeDiff = eventTs - lastEventTs;
+//                System.out.println("此数据时间为"+ eventTs + " 前一刻时间为" + lastEventTs + "时间差为" + timeDiff);
 //                System.out.println("时间差" + timeDiff);
-                if (timeDiff > 0 && timeDiff < 5000) {
-                    Thread.sleep(timeDiff /10 );
+
+                if (timeDiff > 0 && timeDiff < 100000) {
+                    Thread.sleep(timeDiff /20);
                     lastEventTs = eventTs;
+//                    ctx.collect(car);
                 }
             }
+//            if(resultSet.getInt("speed")>30)
+//                System.out.println(car);
             ctx.collect(car);
 
         }
@@ -113,8 +125,10 @@ public class SourceFromMySQL extends RichSourceFunction<Car> {
         try {
             //加载mysql 驱动
             Class.forName("com.mysql.jdbc.Driver");
+            System.out.println("source开始连接数据库");
             //获取连接
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/bishe?useUnicode=true&characterEncoding=UTF-8", "root", "123456");
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/bishe", "root", "123456");
+            System.out.println("source连接数据库成功");
         } catch (Exception e) {
             System.out.println("-----------mysql get connection has exception , msg = "+ e.getMessage());
         }
